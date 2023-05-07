@@ -37,4 +37,14 @@ const mapDBToModel3 = ({
   performer,
 })
 
-module.exports = { mapDBToModel, mapDBToModel2, mapDBToModel3 };
+const mapDBToModel4 = ({
+  id,
+  name,
+  username,
+}) => ({
+  id,
+  name,
+  username
+})
+
+module.exports = { mapDBToModel, mapDBToModel2, mapDBToModel3, mapDBToModel4 };

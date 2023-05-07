@@ -32,7 +32,7 @@ class AlbumService {
       values: [id],
     };
     const query2 = {
-      text: 'SELECT * FROM songs WHERE "albumId" = $1',
+      text: 'SELECT * FROM songs WHERE "albumid" = $1',
       values: [id],
     };
     const [albumResult, songsResult] = await Promise.all([
