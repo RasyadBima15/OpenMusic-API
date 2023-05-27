@@ -2,6 +2,9 @@
 /* eslint-disable consistent-return */
 /* eslint-disable no-console */
 const hapi = require('@hapi/hapi');
+const Inert = require('@hapi/inert');
+const path = require('path');
+
 
 const songs = require('./api/songs');
 const SongService = require('./services/postgres/SongService');
@@ -27,14 +30,29 @@ const playlists = require('./api/playlists');
 const PlaylistsService = require('./services/postgres/PlaylistService');
 const PlaylistsValidator = require('./validator/ValidatorPlaylist')
 
+const _exports = require('./api/exports');
+const ProducerService = require('./services/rabbitmq/ProducerService');
+const ExportsValidator = require('./validator/ValidatorExport');
+
+const uploads = require('./api/uploads');
+const StorageService = require('./services/storage/StorageService');
+const UploadsValidator = require('./validator/ValidatorUploads');
+
+const LikeService = require('./services/postgres/LikeService');
+
+const CacheService = require('./services/redis/CacheService');
+
 require('dotenv').config();
 
 const init = async () => {
+  const cacheService = new CacheService();
   const albumService = new AlbumService();
   const songService = new SongService();
   const usersService = new UserService();
   const authenticationsService = new AuthenticationsService();
   const playlistsService = new PlaylistsService();
+  const storageService = new StorageService(path.resolve(__dirname, 'api/uploads/file/images'));
+  const likeService = new LikeService(cacheService);
   const server = hapi.server({
     port: process.env.PORT,
     host: process.env.HOST,
@@ -48,7 +66,10 @@ const init = async () => {
   await server.register([
     {
       plugin: Jwt,
-    }
+    },
+    {
+      plugin: Inert,
+    },
   ]);
   //mendefinisikan strategi autentikasi jwt
   server.auth.strategy('openmusic_jwt', 'jwt', {
@@ -71,7 +92,8 @@ const init = async () => {
     {
       plugin: albums,
       options: {
-        service: albumService,
+        albumsService: albumService,
+        likesService: likeService,
         validator: albumsValidator,
       },
     },
@@ -111,6 +133,26 @@ const init = async () => {
       options: {
         service: playlistsService,
         validator: PlaylistsValidator,
+      }
+    }
+  )
+  await server.register(
+    {
+      plugin: _exports,
+      options: {
+        producerService: ProducerService,
+        playlistService: playlistsService,
+        validator: ExportsValidator,
+      }
+    }
+  )
+  await server.register(
+    {
+      plugin: uploads,
+      options: {
+        uploadsService: storageService,
+        albumsService: albumService,
+        validator: UploadsValidator,
       }
     }
   )

@@ -83,6 +83,8 @@ class PlaylistsService {
         if (!result.rows.length){
             throw new InvariantError('Playlist gagal diverifikasi');
         }
+        const playlistIdResult = result.rows[0].id;
+        return playlistIdResult;
     }
 
     async addSongToPlaylist(playlistId, songId){

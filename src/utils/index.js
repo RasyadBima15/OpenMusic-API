@@ -3,10 +3,12 @@ const mapDBToModel = ({
   id,
   name,
   year,
+  cover,
 }) => ({
   id,
   name,
   year,
+  coverUrl: cover,
 });
 
 const mapDBToModel2 = ({
@@ -47,4 +49,4 @@ const mapDBToModel4 = ({
   username
 })
 
-module.exports = { mapDBToModel, mapDBToModel2, mapDBToModel3, mapDBToModel4 };
+module.exports = { mapDBToModel, mapDBToModel2, mapDBToModel3, mapDBToModel4};
